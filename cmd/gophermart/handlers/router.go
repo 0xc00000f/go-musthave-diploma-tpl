@@ -7,5 +7,7 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.GET("/ping", Ping())
+
 	return r
 }
