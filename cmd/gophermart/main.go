@@ -1,13 +1,17 @@
 package main
 
 import (
-	"log"
-
-	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/service"
 )
 
 func main() {
-	router := handlers.NewRouter()
+	cfg, err := config.Load("config")
+	if err != nil {
+		panic("config file not found")
+	}
 
-	log.Fatal("http server down", router.Run())
+	api := service.New(cfg)
+	api.CreateHTTPEndpoints()
+	api.Run()
 }
