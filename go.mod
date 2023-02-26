@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.8.2
-	github.com/lib/pq v1.10.7
 	github.com/spf13/viper v1.15.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.5.0
