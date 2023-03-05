@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
-	_ "github.com/lib/pq" //nolint:exhaustive
+	_ "github.com/lib/pq" //revive:disable-line:blank-imports
 
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config/pg"
 )
@@ -18,13 +18,13 @@ var (
 )
 
 type Storage struct {
-	DB *sql.DB
+	DB *sqlx.DB
 
 	Logger *zap.Logger
 }
 
 func New(config pg.Config) (*Storage, error) {
-	db, err := sql.Open("postgres", config.Dsn)
+	db, err := sqlx.Connect("postgres", config.Dsn)
 	if err != nil {
 		return nil, ErrFailedPgsqlConnectionOpen
 	}
@@ -42,10 +42,10 @@ func New(config pg.Config) (*Storage, error) {
 	}, nil
 }
 
-func createUserTable(db *sql.DB) error {
+func createUserTable(db *sqlx.DB) error {
 	query := `
 		CREATE TABLE IF NOT EXISTS person (
-			username text,
+			username text PRIMARY KEY,
 			password text
 		)
 	`

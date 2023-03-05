@@ -1,3 +1,12 @@
 ### Ping
 GET http://localhost:8080/ping
 Content-type: application/json;
+
+### RegisterUser
+POST http://localhost:8080/api/user/register
+Content-type: application/json;
+
+{
+  "username": "maxim",
+  "password": "true password"
+}
