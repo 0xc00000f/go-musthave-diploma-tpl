@@ -27,7 +27,7 @@ func New(cfg *config.Config) *APIService {
 		panic(err)
 	}
 
-	api := &APIService{
+	api := &APIService{ //nolint:exhauststruct
 		cfg:    cfg,
 		logger: logger,
 	}

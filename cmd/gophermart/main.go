@@ -6,10 +6,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load("config")
-	if err != nil {
-		panic("config file not found")
-	}
+	cfg := config.MustLoad("config")
 
 	api := service.New(cfg)
 	api.CreateHTTPEndpoints()

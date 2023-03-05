@@ -16,7 +16,7 @@ type Config struct {
 	Pgsql     pg.Config        `mapstructure:"pgsql"`
 }
 
-func Load(path string) (*Config, error) {
+func MustLoad(path string) *Config {
 	var cfg Config
 
 	v := viper.New()
@@ -40,5 +40,5 @@ func Load(path string) (*Config, error) {
 
 	cfg.Viper = v
 
-	return &cfg, nil
+	return &cfg
 }
