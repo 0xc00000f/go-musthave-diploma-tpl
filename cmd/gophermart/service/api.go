@@ -27,7 +27,7 @@ func New(cfg *config.Config) *APIService {
 		panic(err)
 	}
 
-	api := &APIService{ //nolint:exhauststruct
+	api := &APIService{ //nolint:exhaustruct
 		cfg:    cfg,
 		logger: logger,
 	}
@@ -54,7 +54,13 @@ func (api *APIService) setupWebserver() {
 }
 
 func (api *APIService) CreateHTTPEndpoints() {
-	api.webserver.Engine.GET("ping", handlers.Ping())
+	users, err := api.storage.Users()
+	if err != nil {
+		panic(err)
+	}
+
+	api.webserver.Engine.GET("/ping", handlers.Ping())
+	api.webserver.Engine.POST("/api/user/register", handlers.RegisterUser(users))
 }
 
 func (api *APIService) Run() {
