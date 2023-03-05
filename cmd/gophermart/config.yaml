@@ -6,7 +6,7 @@ webserver:
   read-header-timeout: 2s
 
 pgsql:
-  dsn: 'postgres://cl:cl@localhost:5432/?sslmode=disable'
+  dsn: 'postgres://cl:cl@localhost:5432/gophermart?sslmode=disable'
   pool:
     max-open: 100
     max-idle: 2

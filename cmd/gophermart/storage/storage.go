@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -32,7 +33,26 @@ func New(config pg.Config) (*Storage, error) {
 		return nil, ErrorFailedPgsqlConnectionCheck
 	}
 
+	if err = createUserTable(db); err != nil {
+		return nil, fmt.Errorf("failed to create user table: %w", err)
+	}
+
 	return &Storage{ //nolint:exhaustruct
 		DB: db,
 	}, nil
+}
+
+func createUserTable(db *sql.DB) error {
+	query := `
+		CREATE TABLE IF NOT EXISTS person (
+			username text,
+			password text
+		)
+	`
+
+	if _, err := db.Exec(query); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
 }
