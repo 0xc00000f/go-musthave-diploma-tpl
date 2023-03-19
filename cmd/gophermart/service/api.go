@@ -8,8 +8,10 @@ import (
 
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
+	orderHandlers "github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/orders"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/webserver"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/must"
 )
 
 type APIService struct {
@@ -54,14 +56,14 @@ func (api *APIService) setupWebserver() {
 }
 
 func (api *APIService) CreateHTTPEndpoints() {
-	users, err := api.storage.Users()
-	if err != nil {
-		panic(err)
-	}
+	users := must.OK(api.storage.Users())
+	orders := must.OK(api.storage.Orders())
 
 	api.webserver.Engine.GET("/ping", handlers.Ping())
 	api.webserver.Engine.POST("/api/user/register", handlers.RegisterUser(users))
 	api.webserver.Engine.POST("/api/user/login", handlers.AuthUser(users))
+	api.webserver.Engine.POST("/api/user/orders", orderHandlers.CreateOrder(orders))
+	api.webserver.Engine.GET("/api/user/orders", orderHandlers.FetchOrder(orders))
 }
 
 func (api *APIService) Run() {

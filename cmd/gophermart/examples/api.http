@@ -18,3 +18,13 @@ POST http://localhost:8080/api/user/login
   "username": "max11",
   "password": "true passwor"
 }
+
+### orders/create
+POST http://localhost:8080/api/user/orders
+Content-Type: text/plain
+
+5181975718047403
+
+### orders/fetch
+
+GET http://localhost:8080/api/user/orders

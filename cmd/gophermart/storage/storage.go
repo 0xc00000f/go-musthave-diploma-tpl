@@ -37,6 +37,14 @@ func New(config pg.Config) (*Storage, error) {
 		return nil, fmt.Errorf("failed to create user table: %w", err)
 	}
 
+	if err = createUnixNowFunction(db); err != nil {
+		return nil, fmt.Errorf("failed to create unix_now function: %w", err)
+	}
+
+	if err = createOrderTable(db); err != nil {
+		return nil, fmt.Errorf("failed to create order table: %w", err)
+	}
+
 	return &Storage{ //nolint:exhaustruct
 		DB: db,
 	}, nil
@@ -47,6 +55,38 @@ func createUserTable(db *sqlx.DB) error {
 		CREATE TABLE IF NOT EXISTS person (
 			username text PRIMARY KEY,
 			password text
+		)
+	`
+
+	if _, err := db.Exec(query); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
+}
+
+func createUnixNowFunction(db *sqlx.DB) error {
+	query := `
+		CREATE OR REPLACE FUNCTION unix_now() RETURNS INT
+		LANGUAGE SQL
+		VOLATILE STRICT PARALLEL SAFE AS
+		$$
+		SELECT extract(epoch from now());
+		$$;
+	`
+	if _, err := db.Exec(query); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
+}
+
+func createOrderTable(db *sqlx.DB) error {
+	query := `
+		CREATE TABLE IF NOT EXISTS orders (
+		    number text PRIMARY KEY,
+			username text,
+			created_ts INT  NOT NULL    DEFAULT unix_now()
 		)
 	`
 
