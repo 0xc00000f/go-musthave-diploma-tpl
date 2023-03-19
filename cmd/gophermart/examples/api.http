@@ -10,3 +10,11 @@ Content-type: application/json;
   "username": "max11",
   "password": "true password"
 }
+
+### LoginUser
+POST http://localhost:8080/api/user/login
+
+{
+  "username": "max11",
+  "password": "true passwor"
+}

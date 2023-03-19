@@ -61,6 +61,7 @@ func (api *APIService) CreateHTTPEndpoints() {
 
 	api.webserver.Engine.GET("/ping", handlers.Ping())
 	api.webserver.Engine.POST("/api/user/register", handlers.RegisterUser(users))
+	api.webserver.Engine.POST("/api/user/login", handlers.AuthUser(users))
 }
 
 func (api *APIService) Run() {

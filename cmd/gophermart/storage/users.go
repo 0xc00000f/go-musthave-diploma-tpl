@@ -6,17 +6,22 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+
+	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/libsqlx"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/must"
 )
 
 var (
 	ErrPrepareUsersStatementsFailed = errors.New("failed to prepare users statements")
 	ErrUserAlreadyExists            = errors.New("user already exists")
+	ErrUnexpectedDBError            = errors.New("unexpected db error")
 )
 
 const duplicateKeyErrorCode = "23505"
 
 type usersPreparedStatements struct {
 	register *sqlx.NamedStmt
+	fetch    *sqlx.NamedStmt
 }
 
 type Users struct {
@@ -31,32 +36,32 @@ func (s *Storage) Users() (*Users, error) {
 		prepared: usersPreparedStatements{}, //nolint:exhaustruct
 	}
 
-	if err := u.prepareStatements(); err != nil {
-		return nil, err
-	}
+	u.prepareStatements()
 
 	return u, nil
 }
 
-func (u *Users) prepareStatements() (err error) {
-	u.prepared.register, err = u.db.PrepareNamed(`
+func (u *Users) prepareStatements() {
+	u.prepared.register = must.OK(u.db.PrepareNamed(`
 		INSERT INTO person (username, password)
 		VALUES (:username, :password)
 		RETURNING *;
-	`)
-	if err != nil {
-		return errors.Join(ErrPrepareUsersStatementsFailed, err)
-	}
+	`))
 
-	return nil
+	u.prepared.fetch = must.OK(u.db.PrepareNamed(`
+		SELECT *
+		FROM person
+		WHERE username = ANY(:username)
+		LIMIT :limit;
+	`))
 }
 
-type User struct {
+type UserData struct {
 	Username string `db:"username"`
 	Password string `db:"password"`
 }
 
-func (u *Users) Register(ctx context.Context, user User) error {
+func (u *Users) Register(ctx context.Context, user UserData) error {
 	_, err := u.prepared.register.ExecContext(ctx, user)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok { //nolint:errorlint
@@ -69,4 +74,30 @@ func (u *Users) Register(ctx context.Context, user User) error {
 	}
 
 	return nil
+}
+
+type UserDataMap map[string]*UserData
+
+func (u *Users) Fetch(ctx context.Context, usernames []string) (UserDataMap, error) {
+	rows, err := u.prepared.fetch.QueryxContext(
+		ctx,
+		map[string]any{"username": pq.Array(usernames), "limit": len(usernames)},
+	)
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	result := make(UserDataMap)
+
+	err = libsqlx.StructScanFn(rows, func(row *UserData) error {
+		result[row.Username] = row
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	return result, nil
 }
