@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/luhn"
 )
 
@@ -68,6 +69,7 @@ func CreateOrder(cf CreateFetcher) func(*gin.Context) {
 		_, err = cf.Create(c, storage.OrderCreateData{
 			Username:    todoUser,
 			OrderNumber: number,
+			Status:      status.OrderStatusNew,
 		})
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -75,6 +77,6 @@ func CreateOrder(cf CreateFetcher) func(*gin.Context) {
 			return
 		}
 
-		c.Status(http.StatusOK)
+		c.Status(http.StatusAccepted)
 	}
 }

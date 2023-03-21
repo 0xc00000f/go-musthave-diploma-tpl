@@ -4,14 +4,15 @@ import (
 	"time"
 
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
 )
 
 type Order struct {
-	OrderNumber string `json:"number"`
-	Status      string `json:"status"`
-	Accrual     int64  `json:"accrual"`
-	Withdraw    int64  `json:"withdraw"`
-	CreatedTS   string `json:"uploaded_at"`
+	OrderNumber string             `json:"number"`
+	Status      status.OrderStatus `json:"status"`
+	Accrual     int64              `json:"accrual"`
+	Withdraw    int64              `json:"withdraw"`
+	CreatedTS   string             `json:"uploaded_at"`
 }
 
 func OrderFromStorageData(data storage.OrderData) Order {
@@ -24,17 +25,8 @@ func OrderFromStorageData(data storage.OrderData) Order {
 	}
 }
 
-type AccrualStatus string
-
-const (
-	AccrualStatusRegistered AccrualStatus = "REGISTERED"
-	AccrualStatusInvalid    AccrualStatus = "INVALID"
-	AccrualStatusProcessing AccrualStatus = "PROCESSING"
-	AccrualStatusProcessed  AccrualStatus = "PROCESSED"
-)
-
 type AccrualResponse struct {
-	OrderNumber string        `json:"order"`
-	Status      AccrualStatus `json:"status"`
-	Accrual     float64       `json:"accrual"`
+	OrderNumber string               `json:"order"`
+	Status      status.AccrualStatus `json:"status"`
+	Accrual     float64              `json:"accrual"`
 }

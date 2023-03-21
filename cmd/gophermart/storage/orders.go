@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/libsqlx"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/must"
 )
@@ -35,8 +36,8 @@ func (s *Storage) Orders() (*Orders, error) {
 
 func (o *Orders) prepareStatements() {
 	o.prepared.create = must.OK(o.db.PrepareNamed(`
-		INSERT INTO orders (username, number)
-		VALUES (:username, :number)
+		INSERT INTO orders (username, number, status)
+		VALUES (:username, :number, :status)
 		RETURNING *;
 	`))
 
@@ -55,17 +56,18 @@ func (o *Orders) prepareStatements() {
 }
 
 type OrderData struct {
-	Username    string `db:"username"`
-	OrderNumber string `db:"number"`
-	Accrual     int64  `db:"accrual"`
-	Withdraw    int64  `db:"withdraw"`
-	Status      string `db:"status"`
-	CreatedTS   int64  `db:"created_ts"`
+	Username    string             `db:"username"`
+	OrderNumber string             `db:"number"`
+	Accrual     int64              `db:"accrual"`
+	Withdraw    int64              `db:"withdraw"`
+	Status      status.OrderStatus `db:"status"`
+	CreatedTS   int64              `db:"created_ts"`
 }
 
 type OrderCreateData struct {
-	Username    string `db:"username"`
-	OrderNumber string `db:"number"`
+	Username    string             `db:"username"`
+	OrderNumber string             `db:"number"`
+	Status      status.OrderStatus `db:"status"`
 }
 
 func (o *Orders) Create(ctx context.Context, data OrderCreateData) (*OrderData, error) {

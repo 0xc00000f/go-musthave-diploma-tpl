@@ -87,8 +87,8 @@ func createOrderTable(db *sqlx.DB) error {
 		    number		text				PRIMARY KEY,
 			username	text	NOT NULL,
 			status		text	NOT NULL,
-			accrual		INT		NOT NULL,
-			withdraw	INT		NOT NULL,
+			accrual		INT		NOT NULL					DEFAULT 0,
+			withdraw	INT		NOT NULL					DEFAULT 0,
 			created_ts	INT		NOT NULL					DEFAULT unix_now()
 		)
 	`
