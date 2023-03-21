@@ -15,6 +15,7 @@ type ordersPreparedStatements struct {
 	create      *sqlx.NamedStmt
 	fetch       *sqlx.NamedStmt
 	fetchByUser *sqlx.NamedStmt
+	info        *sqlx.NamedStmt
 }
 
 type Orders struct {
@@ -50,6 +51,12 @@ func (o *Orders) prepareStatements() {
 
 	o.prepared.fetchByUser = must.OK(o.db.PrepareNamed(`
 		SELECT *
+		FROM orders
+		WHERE username = :username;
+	`))
+
+	o.prepared.info = must.OK(o.db.PrepareNamed(`
+		SELECT SUM(accrual) AS balance, SUM(withdraw) as withdraw
 		FROM orders
 		WHERE username = :username;
 	`))
@@ -127,6 +134,28 @@ func (o *Orders) FetchByUser(ctx context.Context, username string) (OrderDataMap
 		return nil
 	})
 
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	return result, nil
+}
+
+type UserInfoData struct {
+	Balance  int64 `db:"balance"`
+	Withdraw int64 `db:"withdraw"`
+}
+
+func (o *Orders) FetchUserInfo(ctx context.Context, username string) (*UserInfoData, error) {
+	rows, err := o.prepared.info.QueryxContext(
+		ctx,
+		map[string]any{"username": username},
+	)
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	result, err := libsqlx.StructScanOneRow[UserInfoData](rows)
 	if err != nil {
 		return nil, ErrUnexpectedDBError
 	}

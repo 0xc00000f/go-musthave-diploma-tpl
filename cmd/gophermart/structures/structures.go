@@ -25,6 +25,18 @@ func OrderFromStorageData(data storage.OrderData) Order {
 	}
 }
 
+type UserInfo struct {
+	Balance  int64 `json:"balance"`
+	Withdraw int64 `json:"withdraw"`
+}
+
+func UserInfoFromStorageData(data storage.UserInfoData) UserInfo {
+	return UserInfo{
+		Balance:  data.Balance,
+		Withdraw: data.Withdraw,
+	}
+}
+
 type AccrualResponse struct {
 	OrderNumber string               `json:"order"`
 	Status      status.AccrualStatus `json:"status"`

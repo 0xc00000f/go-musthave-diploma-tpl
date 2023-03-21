@@ -8,7 +8,9 @@ import (
 
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
-	orderHandlers "github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/orders"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/balance"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/orders"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/user"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/webserver"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/must"
@@ -56,14 +58,18 @@ func (api *APIService) setupWebserver() {
 }
 
 func (api *APIService) CreateHTTPEndpoints() {
-	users := must.OK(api.storage.Users())
-	orders := must.OK(api.storage.Orders())
+	userStorage := must.OK(api.storage.Users())
+	orderStorage := must.OK(api.storage.Orders())
 
 	api.webserver.Engine.GET("/ping", handlers.Ping())
-	api.webserver.Engine.POST("/api/user/register", handlers.RegisterUser(users))
-	api.webserver.Engine.POST("/api/user/login", handlers.AuthUser(users))
-	api.webserver.Engine.POST("/api/user/orders", orderHandlers.CreateOrder(orders))
-	api.webserver.Engine.GET("/api/user/orders", orderHandlers.FetchOrder(orders))
+
+	api.webserver.Engine.POST("/api/user/register", user.RegisterUser(userStorage))
+	api.webserver.Engine.POST("/api/user/login", user.AuthUser(userStorage))
+
+	api.webserver.Engine.POST("/api/user/orders", orders.CreateOrder(orderStorage))
+	api.webserver.Engine.GET("/api/user/orders", orders.FetchOrder(orderStorage))
+
+	api.webserver.Engine.GET("/api/user/balance", balance.FetchUserInfo(orderStorage))
 }
 
 func (api *APIService) Run() {

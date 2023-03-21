@@ -28,3 +28,7 @@ Content-Type: text/plain
 ### orders/fetch
 
 GET http://localhost:8080/api/user/orders
+
+### balance/fetch
+
+GET http://localhost:8080/api/user/balance
