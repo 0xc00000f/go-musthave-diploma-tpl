@@ -9,6 +9,7 @@ import (
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/balance"
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/balance/withdraw"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/orders"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/user"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
@@ -70,7 +71,9 @@ func (api *APIService) CreateHTTPEndpoints() {
 	api.webserver.Engine.GET("/api/user/orders", orders.FetchOrder(orderStorage))
 
 	api.webserver.Engine.GET("/api/user/balance", balance.FetchUserInfo(orderStorage))
-	api.webserver.Engine.POST("/api/user/balance/withdraw", balance.Withdraw(orderStorage))
+
+	api.webserver.Engine.POST("/api/user/balance/withdraw", withdraw.Request(orderStorage))
+	api.webserver.Engine.GET("/api/user/balance/withdrawals", withdraw.FetchUserInfo(orderStorage))
 }
 
 func (api *APIService) Run() {

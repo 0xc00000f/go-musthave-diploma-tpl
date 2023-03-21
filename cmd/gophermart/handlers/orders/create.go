@@ -66,7 +66,7 @@ func CreateOrder(cf CreateFetcher) func(*gin.Context) {
 			return
 		}
 
-		_, err = cf.Create(c, storage.OrderCreateData{
+		_, err = cf.Create(c, storage.OrderCreateData{ //nolint:exhaustruct
 			Username:    todoUser,
 			OrderNumber: number,
 			Status:      status.OrderStatusNew,

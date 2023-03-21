@@ -42,3 +42,8 @@ Content-Type: application/json
   "order": "2377225624",
   "sum": 751.555
 }
+
+### balance/withdrawals
+
+GET http://localhost:8080/api/user/balance/withdrawals
+Content-Type: application/json

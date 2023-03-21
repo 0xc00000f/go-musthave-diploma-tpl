@@ -1,4 +1,4 @@
-package balance
+package withdraw
 
 import (
 	"encoding/json"
@@ -18,16 +18,16 @@ type Withdrawer interface {
 	orders.Fetcher
 }
 
-type WithdrawReq struct {
+type RequestReq struct {
 	Order string  `json:"order"`
 	Sum   float64 `json:"sum"`
 }
 
-func Withdraw(withdrawer Withdrawer) func(*gin.Context) {
+func Request(withdrawer Withdrawer) func(*gin.Context) {
 	return func(c *gin.Context) {
 		todoUser := "todoUser"
 
-		var req WithdrawReq
+		var req RequestReq
 
 		if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, err)
@@ -60,6 +60,11 @@ func Withdraw(withdrawer Withdrawer) func(*gin.Context) {
 			Withdraw:    req.Sum,
 			Status:      status.OrderStatusNew,
 		})
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+
+			return
+		}
 
 		c.Status(http.StatusOK)
 	}
