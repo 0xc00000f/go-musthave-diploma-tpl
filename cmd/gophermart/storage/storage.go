@@ -53,8 +53,8 @@ func New(config pg.Config) (*Storage, error) {
 func createUserTable(db *sqlx.DB) error {
 	query := `
 		CREATE TABLE IF NOT EXISTS person (
-			username text PRIMARY KEY,
-			password text
+			username	text	PRIMARY KEY,
+			password	text
 		)
 	`
 
@@ -84,9 +84,12 @@ func createUnixNowFunction(db *sqlx.DB) error {
 func createOrderTable(db *sqlx.DB) error {
 	query := `
 		CREATE TABLE IF NOT EXISTS orders (
-		    number text PRIMARY KEY,
-			username text,
-			created_ts INT  NOT NULL    DEFAULT unix_now()
+		    number		text				PRIMARY KEY,
+			username	text	NOT NULL,
+			status		text	NOT NULL,
+			accrual		INT		NOT NULL,
+			withdraw	INT		NOT NULL,
+			created_ts	INT		NOT NULL					DEFAULT unix_now()
 		)
 	`
 

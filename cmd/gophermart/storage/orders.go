@@ -58,6 +58,7 @@ type OrderData struct {
 	Username    string `db:"username"`
 	OrderNumber string `db:"number"`
 	Accrual     int64  `db:"accrual"`
+	Withdraw    int64  `db:"withdraw"`
 	Status      string `db:"status"`
 	CreatedTS   int64  `db:"created_ts"`
 }
