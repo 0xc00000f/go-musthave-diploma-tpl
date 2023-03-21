@@ -70,6 +70,7 @@ func (api *APIService) CreateHTTPEndpoints() {
 	api.webserver.Engine.GET("/api/user/orders", orders.FetchOrder(orderStorage))
 
 	api.webserver.Engine.GET("/api/user/balance", balance.FetchUserInfo(orderStorage))
+	api.webserver.Engine.POST("/api/user/balance/withdraw", balance.Withdraw(orderStorage))
 }
 
 func (api *APIService) Run() {

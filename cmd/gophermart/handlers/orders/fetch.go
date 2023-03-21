@@ -22,7 +22,7 @@ type FetchResp []Order
 type Order struct {
 	OrderNumber string             `json:"number"`
 	Status      status.OrderStatus `json:"status"`
-	Accrual     int64              `json:"accrual,omitempty"`
+	Accrual     float64            `json:"accrual,omitempty"`
 	CreatedTS   string             `json:"uploaded_at"`
 }
 

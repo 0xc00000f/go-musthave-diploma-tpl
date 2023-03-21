@@ -32,3 +32,13 @@ GET http://localhost:8080/api/user/orders
 ### balance/fetch
 
 GET http://localhost:8080/api/user/balance
+
+### balance/withdraw
+
+POST http://localhost:8080/api/user/balance/withdraw
+Content-Type: application/json
+
+{
+  "order": "2377225624",
+  "sum": 751.555
+}

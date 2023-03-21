@@ -37,8 +37,8 @@ func (s *Storage) Orders() (*Orders, error) {
 
 func (o *Orders) prepareStatements() {
 	o.prepared.create = must.OK(o.db.PrepareNamed(`
-		INSERT INTO orders (username, number, status)
-		VALUES (:username, :number, :status)
+		INSERT INTO orders (username, number, status, withdraw)
+		VALUES (:username, :number, :status, :withdraw)
 		RETURNING *;
 	`))
 
@@ -65,8 +65,8 @@ func (o *Orders) prepareStatements() {
 type OrderData struct {
 	Username    string             `db:"username"`
 	OrderNumber string             `db:"number"`
-	Accrual     int64              `db:"accrual"`
-	Withdraw    int64              `db:"withdraw"`
+	Accrual     float64            `db:"accrual"`
+	Withdraw    float64            `db:"withdraw"`
 	Status      status.OrderStatus `db:"status"`
 	CreatedTS   int64              `db:"created_ts"`
 }
@@ -74,6 +74,7 @@ type OrderData struct {
 type OrderCreateData struct {
 	Username    string             `db:"username"`
 	OrderNumber string             `db:"number"`
+	Withdraw    float64            `db:"withdraw"`
 	Status      status.OrderStatus `db:"status"`
 }
 
@@ -142,8 +143,8 @@ func (o *Orders) FetchByUser(ctx context.Context, username string) (OrderDataMap
 }
 
 type UserInfoData struct {
-	Balance  int64 `db:"balance"`
-	Withdraw int64 `db:"withdraw"`
+	Balance  float64 `db:"balance"`
+	Withdraw float64 `db:"withdraw"`
 }
 
 func (o *Orders) FetchUserInfo(ctx context.Context, username string) (*UserInfoData, error) {

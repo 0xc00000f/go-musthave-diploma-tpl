@@ -10,8 +10,8 @@ import (
 type Order struct {
 	OrderNumber string             `json:"number"`
 	Status      status.OrderStatus `json:"status"`
-	Accrual     int64              `json:"accrual"`
-	Withdraw    int64              `json:"withdraw"`
+	Accrual     float64            `json:"accrual"`
+	Withdraw    float64            `json:"withdraw"`
 	CreatedTS   string             `json:"uploaded_at"`
 }
 
@@ -26,8 +26,8 @@ func OrderFromStorageData(data storage.OrderData) Order {
 }
 
 type UserInfo struct {
-	Balance  int64 `json:"balance"`
-	Withdraw int64 `json:"withdraw"`
+	Balance  float64 `json:"balance"`
+	Withdraw float64 `json:"withdraw"`
 }
 
 func UserInfoFromStorageData(data storage.UserInfoData) UserInfo {
