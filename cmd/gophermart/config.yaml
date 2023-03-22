@@ -1,19 +1,19 @@
-webserver:
-  address: ":8080"
-  read-timeout: 1s
-  write-timeout: 1s
-  idle-timeout: 30s
-  read-header-timeout: 2s
-
-pgsql:
-  dsn: 'postgres://cl:cl@localhost:5432/gophermart?sslmode=disable'
-  pool:
-    max-open: 100
-    max-idle: 2
-    max-idle-time: 30s
-    max-lifetime: 30s
-
+accrual:
+    accrual_system_address: :8081
 auth:
-  jwt-key: 'my_secret_key'
-  jwt-issuer: 'gophermart'
-  jwt-token-ttl: 3h
+    jwt-issuer: gophermart
+    jwt-key: my_secret_key
+    jwt-token-ttl: 3h
+pgsql:
+    database_uri: postgres://cl:cl@localhost:5432/gophermart?sslmode=disable
+    pool:
+        max-idle: 2
+        max-idle-time: 30s
+        max-lifetime: 30s
+        max-open: 100
+webserver:
+    idle-timeout: 30s
+    read-header-timeout: 2s
+    read-timeout: 1s
+    run_address: :8080
+    write-timeout: 1s

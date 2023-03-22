@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	cfg := config.MustLoad("config")
+	cfg := config.MustLoad("config").ParseFlags()
 
 	api := service.New(cfg)
 	api.CreateHTTPEndpoints()

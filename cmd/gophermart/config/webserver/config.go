@@ -5,7 +5,7 @@ import (
 )
 
 type Config struct {
-	Address string `mapstructure:"address"`
+	Address string `mapstructure:"RUN_ADDRESS"`
 
 	ReadHeaderTimeout time.Duration `mapstructure:"read-header-timeout"`
 	ReadTimeout       time.Duration `mapstructure:"read-timeout"`

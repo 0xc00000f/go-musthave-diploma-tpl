@@ -5,7 +5,7 @@ import (
 )
 
 type Config struct {
-	Dsn  string     `mapstructure:"dsn"`
+	Dsn  string     `mapstructure:"DATABASE_URI"`
 	Pool PoolConfig `mapstructure:"pool"`
 }
 
