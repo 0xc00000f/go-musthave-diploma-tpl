@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/orders"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
@@ -25,7 +26,12 @@ type RequestReq struct {
 
 func Request(withdrawer Withdrawer) func(*gin.Context) {
 	return func(c *gin.Context) {
-		todoUser := "todoUser"
+		user, err := auth.GetUsername(c)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+
+			return
+		}
 
 		var req RequestReq
 
@@ -55,7 +61,7 @@ func Request(withdrawer Withdrawer) func(*gin.Context) {
 		}
 
 		_, err = withdrawer.Create(c, storage.OrderCreateData{
-			Username:    todoUser,
+			Username:    user,
 			OrderNumber: req.Order,
 			Withdraw:    req.Sum,
 			Status:      status.OrderStatusNew,

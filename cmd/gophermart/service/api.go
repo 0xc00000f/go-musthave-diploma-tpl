@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers/balance"
@@ -62,18 +63,23 @@ func (api *APIService) CreateHTTPEndpoints() {
 	userStorage := must.OK(api.storage.Users())
 	orderStorage := must.OK(api.storage.Orders())
 
+	authService := auth.New(api.cfg.Auth)
+
 	api.webserver.Engine.GET("/ping", handlers.Ping())
 
-	api.webserver.Engine.POST("/api/user/register", user.RegisterUser(userStorage))
-	api.webserver.Engine.POST("/api/user/login", user.AuthUser(userStorage))
+	api.webserver.Engine.POST("/api/user/register", user.RegisterUser(userStorage, authService))
+	api.webserver.Engine.POST("/api/user/login", user.AuthUser(userStorage, authService))
 
-	api.webserver.Engine.POST("/api/user/orders", orders.CreateOrder(orderStorage))
-	api.webserver.Engine.GET("/api/user/orders", orders.FetchOrder(orderStorage))
+	authOnly := api.webserver.Engine.Group("")
+	authOnly.Use(authService.AuthMiddleware())
 
-	api.webserver.Engine.GET("/api/user/balance", balance.FetchUserInfo(orderStorage))
+	authOnly.POST("/api/user/orders", orders.CreateOrder(orderStorage))
+	authOnly.GET("/api/user/orders", orders.FetchOrder(orderStorage))
 
-	api.webserver.Engine.POST("/api/user/balance/withdraw", withdraw.Request(orderStorage))
-	api.webserver.Engine.GET("/api/user/balance/withdrawals", withdraw.FetchUserInfo(orderStorage))
+	authOnly.GET("/api/user/balance", balance.FetchUserInfo(orderStorage))
+
+	authOnly.POST("/api/user/balance/withdraw", withdraw.Request(orderStorage))
+	authOnly.GET("/api/user/balance/withdrawals", withdraw.FetchUserInfo(orderStorage))
 }
 
 func (api *APIService) Run() {

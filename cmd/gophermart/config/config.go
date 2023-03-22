@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config/pg"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config/webserver"
 )
@@ -14,6 +15,7 @@ type Config struct {
 
 	Webserver webserver.Config `mapstructure:"webserver"`
 	Pgsql     pg.Config        `mapstructure:"pgsql"`
+	Auth      auth.Config      `mapstructure:"auth"`
 }
 
 func MustLoad(path string) *Config {

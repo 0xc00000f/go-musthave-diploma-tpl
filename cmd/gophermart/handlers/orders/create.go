@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/lib/luhn"
@@ -22,9 +23,14 @@ type CreateFetcher interface {
 	Fetcher
 }
 
-func CreateOrder(cf CreateFetcher) func(*gin.Context) {
+func CreateOrder(cf CreateFetcher) func(*gin.Context) { //revive:disable-line:cyclomatic
 	return func(c *gin.Context) {
-		todoUser := "todoUser"
+		user, err := auth.GetUsername(c)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+
+			return
+		}
 
 		if c.Request.Body == nil || c.Request.Header.Get("Content-Type") != "text/plain" {
 			c.AbortWithStatus(http.StatusBadRequest)
@@ -55,7 +61,7 @@ func CreateOrder(cf CreateFetcher) func(*gin.Context) {
 		}
 
 		if order, ok := orders[number]; ok {
-			if order.Username == todoUser {
+			if order.Username == user {
 				c.AbortWithStatus(http.StatusOK)
 
 				return
@@ -67,7 +73,7 @@ func CreateOrder(cf CreateFetcher) func(*gin.Context) {
 		}
 
 		_, err = cf.Create(c, storage.OrderCreateData{ //nolint:exhaustruct
-			Username:    todoUser,
+			Username:    user,
 			OrderNumber: number,
 			Status:      status.OrderStatusNew,
 		})

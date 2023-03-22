@@ -12,3 +12,8 @@ pgsql:
     max-idle: 2
     max-idle-time: 30s
     max-lifetime: 30s
+
+auth:
+  jwt-key: 'my_secret_key'
+  jwt-issuer: 'gophermart'
+  jwt-token-ttl: 3h

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/storage"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/structures/status"
 )
@@ -28,9 +29,14 @@ type Order struct {
 
 func FetchOrder(fetcher Fetcher) func(*gin.Context) {
 	return func(c *gin.Context) {
-		todoUser := "todoUser"
+		user, err := auth.GetUsername(c)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
 
-		orders, err := fetcher.FetchByUser(c, todoUser)
+			return
+		}
+
+		orders, err := fetcher.FetchByUser(c, user)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 
