@@ -1,5 +1,6 @@
 accrual:
     accrual_system_address: :8081
+    update-interval: 5s
 auth:
     jwt-issuer: gophermart
     jwt-key: my_secret_key

@@ -24,3 +24,9 @@ func UserInfoFromStorageData(data storage.UserInfoData) UserInfo {
 		Withdraw: data.Withdraw,
 	}
 }
+
+type Accrual struct {
+	OrderNumber string               `json:"order"`
+	Status      status.AccrualStatus `json:"status"`
+	Accrual     float64              `json:"accrual"`
+}

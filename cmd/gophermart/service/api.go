@@ -1,11 +1,13 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
 	"go.uber.org/zap"
 
+	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/accrual"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/auth"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/config"
 	"github.com/0xc00000f/go-musthave-diploma-tpl/cmd/gophermart/handlers"
@@ -21,8 +23,9 @@ import (
 type APIService struct {
 	cfg *config.Config
 
-	webserver *webserver.Webserver
-	storage   *storage.Storage
+	webserver     *webserver.Webserver
+	storage       *storage.Storage
+	accrualWorker *accrual.Worker
 
 	logger *zap.Logger
 }
@@ -39,6 +42,7 @@ func New(cfg *config.Config) *APIService {
 	}
 
 	api.setupDB()
+	api.setupAccrual()
 	api.setupWebserver()
 
 	return api
@@ -88,4 +92,15 @@ func (api *APIService) Run() {
 	if err := api.webserver.Server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		api.logger.Fatal("server listen failed")
 	}
+}
+
+func (api *APIService) setupAccrual() {
+	api.accrualWorker = accrual.New(api.cfg.Accrual, api.logger)
+}
+
+func (api *APIService) RunAccrual(ctx context.Context) {
+	api.logger.Info("accrual worker run", zap.String("addr", api.accrualWorker.AccrualAddress))
+	orderStorage := must.OK(api.storage.Orders())
+
+	api.accrualWorker.Run(ctx, orderStorage)
 }

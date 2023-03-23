@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -15,6 +16,7 @@ type ordersPreparedStatements struct {
 	create      *sqlx.NamedStmt
 	fetch       *sqlx.NamedStmt
 	fetchByUser *sqlx.NamedStmt
+	update      *sqlx.NamedStmt
 	info        *sqlx.NamedStmt
 }
 
@@ -53,6 +55,13 @@ func (o *Orders) prepareStatements() {
 		SELECT *
 		FROM orders
 		WHERE username = :username;
+	`))
+
+	o.prepared.update = must.OK(o.db.PrepareNamed(`
+		UPDATE orders
+		SET status = :status, accrual = :accrual
+		WHERE number = :number
+		RETURNING *;
 	`))
 
 	o.prepared.info = must.OK(o.db.PrepareNamed(`
@@ -159,6 +168,69 @@ func (o *Orders) FetchUserInfo(ctx context.Context, username string) (*UserInfoD
 	result, err := libsqlx.StructScanOneRow[UserInfoData](rows)
 	if err != nil {
 		return nil, ErrUnexpectedDBError
+	}
+
+	return result, nil
+}
+
+type OrdersSearchQuery struct {
+	Status []status.OrderStatus
+}
+
+type OrdersSearchResult struct {
+	Orders []*OrderData
+}
+
+func (o *Orders) Search(ctx context.Context, query OrdersSearchQuery) (*OrdersSearchResult, error) {
+	q := `
+		SELECT *
+		FROM orders
+		WHERE status = ANY(:number)
+		`
+
+	rows, err := o.db.QueryxContext(
+		ctx,
+		q,
+		map[string]any{"status": pq.Array(query.Status)},
+	)
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	result := &OrdersSearchResult{Orders: []*OrderData{}}
+
+	err = libsqlx.StructScanFn(rows, func(row *OrderData) error {
+		result.Orders = append(result.Orders, row)
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	return result, nil
+}
+
+type OrderUpdateData struct {
+	Status      status.AccrualStatus `db:"status"`
+	Accrual     float64              `db:"accrual"`
+	OrderNumber string               `db:"number"`
+}
+
+func (o *Orders) Update(ctx context.Context, data OrderUpdateData) (*OrderData, error) {
+	rows, err := o.prepared.update.QueryxContext(ctx, data)
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	result, err := libsqlx.StructScanOneRow[OrderData](rows)
+	if err != nil {
+		return nil, ErrUnexpectedDBError
+	}
+
+	if result == nil {
+		return nil, errors.New("order not found")
 	}
 
 	return result, nil

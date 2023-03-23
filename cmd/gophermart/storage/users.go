@@ -12,9 +12,8 @@ import (
 )
 
 var (
-	ErrPrepareUsersStatementsFailed = errors.New("failed to prepare users statements")
-	ErrUserAlreadyExists            = errors.New("user already exists")
-	ErrUnexpectedDBError            = errors.New("unexpected db error")
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUnexpectedDBError = errors.New("unexpected db error")
 )
 
 const duplicateKeyErrorCode = "23505"
